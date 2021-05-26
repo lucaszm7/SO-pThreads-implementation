@@ -5,17 +5,32 @@
 
 using namespace std;
 
-
-
 int main(){
-    // int paramentro_oimundo = 10;
-
-    // Tarefa tarefa;
-    // tarefa.funcao = OlaMundo;
-    // tarefa.parametros = (void*)&paramentro_oimundo;
-
-    int pvs = 5;
+    int pvs = 20;
+    Tarefa teste1, teste2, teste3, teste4;
+    teste1.funcao = funcTeste;
+    teste1.id = 1;
+    teste1.parametros = (void*)("Lucas");
+    teste2.funcao = funcTeste;
+    teste2.id = 2;
+    teste2.parametros = (void*)("Joao");
+    teste3.funcao = funcTeste;
+    teste3.id = 3;
+    teste3.parametros = (void*)("Matheus");
+    teste4.funcao = funcTeste;
+    teste4.id = 4;
+    teste4.parametros = (void*)("Guilherme");
+    tarefasProntas.push_back(teste1);
+    tarefasProntas.push_back(teste2);
+    tarefasProntas.push_back(teste3);
+    tarefasProntas.push_back(teste3);
+    tarefasProntas.push_back(teste4);
+    tarefasProntas.push_back(teste4);
+    tarefasProntas.push_back(teste4);
+    tarefasProntas.push_back(teste4);
+    tarefasProntas.push_back(teste4);
+    tarefasProntas.push_back(teste4);
     start(pvs);
-    finish(pvs);
+    finish();
     return 0;
 }
