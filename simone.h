@@ -24,7 +24,9 @@ void* funcTeste(void* pTeste){
 
 void* funcTeste2(void* t){
     cout << "Ola mundo" << endl;
-    return 0;
+    int *r = new int;
+    *r = 0;
+    return (void*) r;
 }
 
 class Tarefa{
@@ -42,6 +44,7 @@ public:
 };
 
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_cout = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
@@ -60,9 +63,11 @@ bool isFinished = false;
 
 void* loop_que_itera(void*p) {
     Tarefa *tarefaAtual = new Tarefa;
-
+    //cout << "LOOP QUE ITERA" << endl;
     do {
+        //cout << "DO" << endl;
         pthread_mutex_lock(&(m_tarefas_prontas));
+        //cout << "INSIDE DO" << endl;
         if(!tarefasProntas.empty()){
             //cout << "SIZE OF LIST: " << tarefasProntas.size() << endl;
             *tarefaAtual = (tarefasProntas.front());
@@ -71,21 +76,27 @@ void* loop_que_itera(void*p) {
         //cout << "FINAL SIZE OF LIST: " << tarefasProntas.size() << endl;
         //cout << "ID OF TAREFA: " << tarefaAtual->id << endl;
         pthread_mutex_unlock(&(m_tarefas_prontas));
-
+        //cout << "AFTER DO" << endl;
         //cout << "ERRO 1" << endl;
         if (tarefaAtual->funcao != NULL){
             tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
+            pthread_mutex_lock(&m_tarefas_terminadas);
             tarefasTerminadas.push_back(*tarefaAtual);
-            int* nome = (int*)(tarefaAtual->retorno);
-            pthread_mutex_lock(&m_cout);
-            cout << "RETORNO: " << *((int*)(tarefaAtual->retorno)) << endl;
-            pthread_mutex_unlock(&m_cout);
+            pthread_mutex_unlock(&m_tarefas_terminadas);
+            //cout << "ERRO 2" << endl;
+
+            //pthread_mutex_lock(&m_cout);
+            cout << "RETORNO: " << *((int*)(tarefaAtual->retorno));
+            cout << "\n";
+            //pthread_mutex_unlock(&m_cout);
+
+            //cout << "ERRO 3" << endl;
+            tarefaAtual->id = 0;
+            tarefaAtual->funcao = NULL;
+            tarefaAtual->parametros = NULL;
+            tarefaAtual->retorno = NULL;
         } 
 
-        tarefaAtual->id = 0;
-        tarefaAtual->funcao = NULL;
-        tarefaAtual->parametros = NULL;
-        tarefaAtual->retorno = NULL;
     
     } while(!isFinished);
 

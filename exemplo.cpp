@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-    int pvs = 20;
+    int pvs = 10;
     Tarefa teste1, teste2, teste3, teste4;
     teste1.funcao = funcTeste;
     teste1.id = 1;
