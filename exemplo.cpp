@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-    int pvs = 10;
+    int pvs = 20;
     Tarefa teste1, teste2, teste3, teste4;
     teste1.funcao = funcTeste;
     teste1.id = 1;
@@ -31,6 +31,7 @@ int main(){
     tarefasProntas.push_back(teste4);
     tarefasProntas.push_back(teste4);
     start(pvs);
+    sync(0, NULL);
     finish();
     return 0;
 }

@@ -77,17 +77,17 @@ void* loop_que_itera(void*p) {
         //cout << "ID OF TAREFA: " << tarefaAtual->id << endl;
         pthread_mutex_unlock(&(m_tarefas_prontas));
         //cout << "AFTER DO" << endl;
-        //cout << "ERRO 1" << endl;
         if (tarefaAtual->funcao != NULL){
             tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
+            
             pthread_mutex_lock(&m_tarefas_terminadas);
             tarefasTerminadas.push_back(*tarefaAtual);
             pthread_mutex_unlock(&m_tarefas_terminadas);
             //cout << "ERRO 2" << endl;
 
             //pthread_mutex_lock(&m_cout);
-            cout << "RETORNO: " << *((int*)(tarefaAtual->retorno));
-            cout << "\n";
+            //cout << "RETORNO: " << *((int*)(tarefaAtual->retorno)) << endl;
+            // cout << "\n";
             //pthread_mutex_unlock(&m_cout);
 
             //cout << "ERRO 3" << endl;
@@ -120,6 +120,12 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
 }
 
 int sync(int idTarefa, void** retornoTarefa){
+    pthread_mutex_lock(&m_tarefas_terminadas);
+    while (tarefasTerminadas.size() > 0){
+        cout << "Retorno: " << *((int*)(tarefasTerminadas.front().retorno)) << endl;
+        tarefasTerminadas.pop_front();
+    }
+    pthread_mutex_unlock(&m_tarefas_terminadas);
     return 1;
 }
 
