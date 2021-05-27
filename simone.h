@@ -29,6 +29,8 @@ void* funcTeste2(void* t){
     return (void*) r;
 }
 
+
+
 class Tarefa{
 public:
     int id = 0;
@@ -110,10 +112,13 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
     novaTarefa.parametros = dta;
     novaTarefa.id = countID;
     pthread_mutex_unlock(&m_countID);
+
     pthread_mutex_lock(&(m_tarefas_prontas));
     tarefasProntas.push_back(novaTarefa);
     pthread_mutex_unlock(&(m_tarefas_prontas));
 
+    // cout << "RETURN ID: " << returnID << endl;
+    // cout << "\n";
     return returnID;
 }
 
@@ -127,23 +132,28 @@ int sync(int idTarefa, void** retornoTarefa){
     //Executaremos a tarefa e já retornaremos o resultado
     // e retiraremos a tarefa da lista de tarefas prontas
 
-    pthread_mutex_lock(&m_tarefas_prontas);
+    if(!pthread_mutex_lock(&m_tarefas_prontas)){
+        cout << "PEGOU MUTEX TAREFAS PRONTAS" << endl;
+    }
     for (it1 = tarefasProntas.begin(); it1 != tarefasProntas.end(); ++it1){
         if(it1->id == idTarefa){
             achou = true;
-            cout << "TAREFA NAO FOI EXECUTADA AINDA" << endl;
+            cout << "   TAREFA " << idTarefa << "NAO FOI EXECUTADA AINDA" << endl;
 
-            cout << "TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
+            cout << "   TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
             tarefasProntas.erase(it1);
-            cout << "TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
+            cout << "   TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
 
+            cout << "   ***ID TAREFA: " << idTarefa << endl;
+            *tarefaAtual = *it1;
+            cout << "   ***TAREFA NOVA: " << (char*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
             if(!pthread_mutex_unlock(&m_tarefas_prontas)){
                 cout << "LIBEROU MUTEX TAREFAS PRONTAS 1" << endl;
+                cout << "\n";
             }
-
-            *retornoTarefa = it1->funcao(it1->parametros);
+            *retornoTarefa = tarefaAtual->funcao(tarefaAtual->parametros);
+            cout << "***TAREFA NOVA: " << (char*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
             cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
-
 
             break;
         }
@@ -151,6 +161,7 @@ int sync(int idTarefa, void** retornoTarefa){
     if(!achou){
         if(!pthread_mutex_unlock(&m_tarefas_prontas)){
             cout << "LIBEROU MUTEX TAREFAS PRONTAS 2" << endl;
+            cout << "\n";
         }
     }
     //Ocasião numero 2
@@ -159,21 +170,26 @@ int sync(int idTarefa, void** retornoTarefa){
     //Caso ela esteja aqui, retornaremos o resultado e tiraremos
     // a tarefa da lista de tarefas terminadas
     if(!achou){
-        pthread_mutex_lock(&m_tarefas_terminadas);
+        if(!pthread_mutex_lock(&m_tarefas_terminadas)){
+            cout << "PEGOU MUTEX TAREFAS TERMINADAS" << endl;
+        }
         for (it2 = tarefasTerminadas.begin(); it2 != tarefasTerminadas.end(); ++it2){
             if(it2->id == idTarefa){
                 achou = true;
-                cout << "TAREFA JA FOI EXECUTADA" << endl;
+                cout << "   TAREFA " << idTarefa << " JA FOI EXECUTADA" << endl;
 
-                cout << "TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
+                cout << "   TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
                 tarefasTerminadas.erase(it2);
-                cout << "TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
+                cout << "   TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
 
+                *tarefaAtual = *it2;
+                //cout << "   ***TAREFA NOVA: " << (char*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
                 if(!pthread_mutex_unlock(&m_tarefas_terminadas)){
                     cout << "LIBEROU MUTEX TAREFAS TERMINADAS 1" << endl;
+                    cout << "\n";
                 }
-                
-                *retornoTarefa = it2->retorno;
+                //cout << "***TAREFA NOVA: " << (char*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
+                *retornoTarefa = tarefaAtual->retorno;
                 cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
                 break;
             }
@@ -181,36 +197,63 @@ int sync(int idTarefa, void** retornoTarefa){
         if(!achou){
             if(!pthread_mutex_unlock(&m_tarefas_terminadas)){
                     cout << "LIBEROU MUTEX TAREFAS TERMINADAS 2" << endl;
+                    cout << "\n";
                 }
         }
         //Ocasiao numero 3
         //A tarefa está em execução
         //Esperar que ela termine
 
-        // if(!achou){
-        //     cout << "TAREFA SENDO EXECUTADA" << endl;
-        //     sleep(1);
-        //     pthread_mutex_lock(&m_tarefas_terminadas);
-        //     for (it1 = tarefasTerminadas.begin(); it1 != tarefasTerminadas.end(); ++it1){
-        //         if(it1->id == idTarefa){
-        //             cout << "TAREFA TERMINOU" << endl;
-        //             tarefasTerminadas.erase(it1);
-        //             pthread_mutex_unlock(&m_tarefas_terminadas);
-        //             *retornoTarefa = it1->retorno;
-        //             achou = true;
-        //             break;
-        //         }
-        //     }
-        // }
+        if(!achou){
+            cout << "=== TAREFA SENDO EXECUTADA ===" << endl;
+            while(!achou){
+                cout << "=== ENTROU WHILE ===" << endl;
+                pthread_mutex_lock(&m_tarefas_terminadas);
+                for (it1 = tarefasTerminadas.begin(); it1 != tarefasTerminadas.end(); ++it1){
+                    if(it1->id == idTarefa){
+                        cout << "TAREFA TERMINOU" << endl;
+                        tarefasTerminadas.erase(it1);
+                        pthread_mutex_unlock(&m_tarefas_terminadas);
+                        *retornoTarefa = it1->retorno;
+                        achou = true;
+                        break;
+                    }
+                }
+                pthread_mutex_unlock(&m_tarefas_terminadas);
+                cout << "=== AINDA NÃO ACHOU ===" << endl;
+                if(!achou){
+                    pthread_mutex_unlock(&m_tarefas_terminadas);
+                    cout << "=== XXXXXXXXX ===" << endl;
+                    pthread_mutex_lock(&(m_tarefas_prontas));
+                    //Verifica se a lista está vazia
+                    if(!tarefasProntas.empty()){
+                        cout << "   === YYYYYYYY ===" << endl;
+                        //Caso a lista não esteja vazia pega uma tarefa e libera o mutex
+                        *tarefaAtual = (tarefasProntas.front());
+                        tarefasProntas.pop_front();
+                        pthread_mutex_unlock(&(m_tarefas_prontas));
+                        //Executa a função
+                        tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
+                        //Coloca o resultado na lista de tarefas terminadas
+                        pthread_mutex_lock(&m_tarefas_terminadas);
+                        tarefasTerminadas.push_back(*tarefaAtual);
+                        pthread_mutex_unlock(&m_tarefas_terminadas);
+                    }
+                    else {
+                        pthread_mutex_unlock(&(m_tarefas_prontas));
+                    }
+                }
+            }
+        }
     }
 
     //Printa o resultado
     //=== PARA DEBUG ===
-    pthread_mutex_lock(&m_tarefas_terminadas);
-    for (it2 = tarefasTerminadas.begin(); it2 != tarefasTerminadas.end(); ++it2){
-        cout << "Retorno: " << *((int*)(it2->retorno)) << endl;
-    }
-    pthread_mutex_unlock(&m_tarefas_terminadas);
+    // pthread_mutex_lock(&m_tarefas_terminadas);
+    // for (it2 = tarefasTerminadas.begin(); it2 != tarefasTerminadas.end(); ++it2){
+    //     cout << "Retorno: " << *((int*)(it2->retorno)) << endl;
+    // }
+    // pthread_mutex_unlock(&m_tarefas_terminadas);
     return 1;
 }
 
