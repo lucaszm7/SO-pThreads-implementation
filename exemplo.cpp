@@ -8,7 +8,6 @@ using namespace std;
 void fazCoisa(){
     for (int x = 0; x < 100000000; ++x){
         int y = x * x;
-        
         x += 1;
     }
 }
@@ -36,7 +35,7 @@ void* fibo(void *dta){
 }
 
 int main1(){
-    int pvs = 3;
+    int pvs = 20;
     int tID;
     int par = 30;
     void *r;
@@ -87,6 +86,10 @@ int main2(){
     finish();
     //cout << "ID 1 para sincronizar: " << tID << endl;
     return 0;
+}
+
+int main3(){
+
 }
 
 int main(){

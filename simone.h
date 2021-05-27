@@ -29,8 +29,6 @@ void* funcTeste2(void* t){
     return (void*) r;
 }
 
-
-
 class Tarefa{
 public:
     int id = 0;
@@ -47,7 +45,7 @@ public:
 
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t m_cout = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t m_threads = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_countID = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
@@ -95,11 +93,13 @@ void* loop_que_itera(void*p) {
 }
 
 int start(int m){
+    pthread_mutex_lock(&(m_threads));
     for (int i = 0; i < m; ++i){
         pthread_t thread;
         threads.push_back(thread);
         pthread_create(&thread, NULL, loop_que_itera, NULL);
     }
+    pthread_mutex_unlock(&(m_threads));
     return 1;
 }
 
@@ -123,8 +123,8 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
 }
 
 int sync(int idTarefa, void** retornoTarefa){
-    Tarefa *tarefaAtual = new Tarefa;
-    list<Tarefa>::iterator it1, it2;
+    Tarefa *tarefaSync = new Tarefa;
+    list<Tarefa>::iterator it1, it2, it3;
     bool achou = false;
 
     //Ocasião numero 1
@@ -138,22 +138,22 @@ int sync(int idTarefa, void** retornoTarefa){
     for (it1 = tarefasProntas.begin(); it1 != tarefasProntas.end(); ++it1){
         if(it1->id == idTarefa){
             achou = true;
-            *tarefaAtual = *it1;
+            *tarefaSync = *it1;
             tarefasProntas.erase(it1);
             
             // cout << "   TAREFA " << idTarefa << " NAO FOI EXECUTADA AINDA" << endl;
             // cout << "   TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
             // cout << "   TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
             // cout << "   ID TAREFA: " << idTarefa << endl;
-            // cout << "   PRE TAREFA NOVA: " << *(int*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
+            // cout << "   PRE TAREFA NOVA: " << *(int*)(tarefaSync->parametros) << " ID: " << (tarefaSync->id) << endl;
             
             if(!pthread_mutex_unlock(&m_tarefas_prontas)){
                 //cout << "LIBEROU MUTEX TAREFAS PRONTAS 1" << endl;
                 //cout << "\n";
             }
 
-            *retornoTarefa = tarefaAtual->funcao(tarefaAtual->parametros);
-            //cout << "***TAREFA NOVA: " << *(int*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
+            *retornoTarefa = tarefaSync->funcao(tarefaSync->parametros);
+            //cout << "***TAREFA NOVA: " << *(int*)(tarefaSync->parametros) << " ID: " << (tarefaSync->id) << endl;
             //cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
 
             break;
@@ -177,7 +177,7 @@ int sync(int idTarefa, void** retornoTarefa){
         for (it2 = tarefasTerminadas.begin(); it2 != tarefasTerminadas.end(); ++it2){
             if(it2->id == idTarefa){
                 achou = true;
-                *tarefaAtual = *it2;
+                *tarefaSync = *it2;
                 tarefasTerminadas.erase(it2);
 
                 //cout << "   TAREFA " << idTarefa << " JA FOI EXECUTADA" << endl;
@@ -188,8 +188,8 @@ int sync(int idTarefa, void** retornoTarefa){
                     //cout << "LIBEROU MUTEX TAREFAS TERMINADAS 1" << endl;
                     //cout << "\n";
                 }
-                *retornoTarefa = tarefaAtual->retorno;
-                //cout << "***TAREFA NOVA: " << (int*)(tarefaAtual->parametros) << " ID: " << (tarefaAtual->id) << endl;
+                *retornoTarefa = tarefaSync->retorno;
+                //cout << "***TAREFA NOVA: " << (int*)(tarefaSync->parametros) << " ID: " << (tarefaSync->id) << endl;
                 //cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
                 
                 break;
@@ -230,14 +230,14 @@ int sync(int idTarefa, void** retornoTarefa){
                     //Verifica se a lista está vazia
                     if(!tarefasProntas.empty()){
                         //Caso a lista não esteja vazia pega uma tarefa e libera o mutex
-                        *tarefaAtual = (tarefasProntas.front());
+                        *tarefaSync = (tarefasProntas.front());
                         tarefasProntas.pop_front();
                         pthread_mutex_unlock(&(m_tarefas_prontas));
                         //Executa a função
-                        tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
+                        tarefaSync->retorno = tarefaSync->funcao(tarefaSync->parametros);
                         //Coloca o resultado na lista de tarefas terminadas
                         pthread_mutex_lock(&m_tarefas_terminadas);
-                        tarefasTerminadas.push_back(*tarefaAtual);
+                        tarefasTerminadas.push_back(*tarefaSync);
                         pthread_mutex_unlock(&m_tarefas_terminadas);
                     }
                     else {
