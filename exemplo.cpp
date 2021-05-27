@@ -35,55 +35,60 @@ void* fibo(void *dta){
     return r;
 }
 
-int main(){
-    int pvs = 15;
+int main1(){
+    int pvs = 3;
     int tID;
-    int par = 7;
+    int par = 30;
     void *r;
     start(pvs);
     tID = spawn(NULL, fibo, &par);
     //fazCoisa();
     sync(tID, &r);
+    finish();
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
 }
 
-// int main(){
-//     int pvs = 15;
-//     int tID, tID2, tID3;
-//     void *r, *s, *t;
+int main2(){
+    int pvs = 15;
+    int tID, tID2, tID3;
+    void *r, *s, *t;
 
-//     start(pvs);
-//     spawn(NULL, funcTeste, (void*)("Gabriel"));
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
-//     tID = spawn(NULL, funcTeste, (void*)("Herculanoxxxxxxxxxx"));
-//     sync(tID, &r);
-//     cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
-//     cout << "\n";
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
-//     tID2 = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
-//     spawn(NULL, funcTeste, (void*)("Herculano"));
+    start(pvs);
+    spawn(NULL, funcTeste, (void*)("Gabriel"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    tID = spawn(NULL, funcTeste, (void*)("Herculanoxxxxxxxxxx"));
+    sync(tID, &r);
+    cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
+    cout << "\n";
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    tID2 = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
     
 
-//     //fazCoisa();
+    //fazCoisa();
 
 
-//     sync(tID2, &s);
-//     //cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
-//     // cout << "\n";
+    sync(tID2, &s);
+    //cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
+    // cout << "\n";
 
-//     // tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
-//     // sync(tID3, &t);
-//     // cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
-//     // cout << "\n";
+    // tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
+    // sync(tID3, &t);
+    // cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
+    // cout << "\n";
 
-//     cout << "ID 2 para sincronizar: " << tID2 << endl;
-//     //cout << "ID 3 para sincronizar: " << tID3 << endl;
-//     //cout << "\n";
+    cout << "ID 2 para sincronizar: " << tID2 << endl;
+    //cout << "ID 3 para sincronizar: " << tID3 << endl;
+    //cout << "\n";
 
-//     finish();
-//     //cout << "ID 1 para sincronizar: " << tID << endl;
-//     return 0;
-// }
+    finish();
+    //cout << "ID 1 para sincronizar: " << tID << endl;
+    return 0;
+}
+
+int main(){
+    main1();
+}
