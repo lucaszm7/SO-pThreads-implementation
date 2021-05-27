@@ -13,7 +13,7 @@ void* funcTeste(void* pTeste){
     *r = 0;
     //cout << "ERRO 2" << endl;
     if(pTeste == NULL){
-        dta = strdup("Lucas");
+        dta = strdup("JOSEARLINDODACRUZEVARISTO");
         //cout << "ERRO 3" << endl;
     }
 
@@ -46,6 +46,7 @@ public:
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_cout = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t m_countID = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
 list <pthread_t> threads;
@@ -101,15 +102,19 @@ int start(int m){
 }
 
 int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
+    pthread_mutex_lock(&m_countID);
     countID += 1;
+    int returnID = countID;
     Tarefa novaTarefa;
     novaTarefa.funcao = func;
     novaTarefa.parametros = dta;
     novaTarefa.id = countID;
+    pthread_mutex_unlock(&m_countID);
     pthread_mutex_lock(&(m_tarefas_prontas));
     tarefasProntas.push_back(novaTarefa);
     pthread_mutex_unlock(&(m_tarefas_prontas));
-    return countID;
+
+    return returnID;
 }
 
 int sync(int idTarefa, void** retornoTarefa){
@@ -127,17 +132,26 @@ int sync(int idTarefa, void** retornoTarefa){
         if(it1->id == idTarefa){
             achou = true;
             cout << "TAREFA NAO FOI EXECUTADA AINDA" << endl;
+
+            cout << "TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
             tarefasProntas.erase(it1);
-            pthread_mutex_unlock(&m_tarefas_prontas);
+            cout << "TAMANHO TAREFAS PRONTAS: " << tarefasProntas.size() << endl;
+
+            if(!pthread_mutex_unlock(&m_tarefas_prontas)){
+                cout << "LIBEROU MUTEX TAREFAS PRONTAS 1" << endl;
+            }
 
             *retornoTarefa = it1->funcao(it1->parametros);
             cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
+
+
             break;
         }
     }
     if(!achou){
-        cout << "LIBEROU MUTEX TAREFAS PRONTAS" << endl;
-        pthread_mutex_unlock(&m_tarefas_prontas);
+        if(!pthread_mutex_unlock(&m_tarefas_prontas)){
+            cout << "LIBEROU MUTEX TAREFAS PRONTAS 2" << endl;
+        }
     }
     //Ocasião numero 2
     //A tarefa não está na lista de tarefas prontas
@@ -150,18 +164,24 @@ int sync(int idTarefa, void** retornoTarefa){
             if(it2->id == idTarefa){
                 achou = true;
                 cout << "TAREFA JA FOI EXECUTADA" << endl;
+
+                cout << "TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
                 tarefasTerminadas.erase(it2);
+                cout << "TAMANHO TAREFAS TERMINADAS: " << tarefasTerminadas.size() << endl;
 
-                cout << "RETORNO UNLOCK: " << pthread_mutex_unlock(&m_tarefas_terminadas) << endl;
-
+                if(!pthread_mutex_unlock(&m_tarefas_terminadas)){
+                    cout << "LIBEROU MUTEX TAREFAS TERMINADAS 1" << endl;
+                }
+                
                 *retornoTarefa = it2->retorno;
                 cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
                 break;
             }
         }
         if(!achou){
-            cout << "LIBEROU MUTEX TAREFAS TERMINADAS" << endl;
-            pthread_mutex_unlock(&m_tarefas_terminadas);
+            if(!pthread_mutex_unlock(&m_tarefas_terminadas)){
+                    cout << "LIBEROU MUTEX TAREFAS TERMINADAS 2" << endl;
+                }
         }
         //Ocasiao numero 3
         //A tarefa está em execução
@@ -197,7 +217,7 @@ int sync(int idTarefa, void** retornoTarefa){
 void finish(){
     cout << "=== SEGMENTATION FAULT 1 ===" << endl;
     isFinished = true;
-    for (int i = 0; i < threads.size();){
+    while (!threads.empty()){
         cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
         pthread_join(threads.front(), NULL);
         cout << "=== SEGMENTATION FAULT 3 ===" << endl;
