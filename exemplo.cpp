@@ -5,33 +5,41 @@
 
 using namespace std;
 
+void fazCoisa(){
+    for (int x = 0; x < 1000000; ++x){
+        int y = x * x;
+        
+        x += 1;
+    }
+}
+
 int main(){
-    int pvs = 20;
-    Tarefa teste1, teste2, teste3, teste4;
-    teste1.funcao = funcTeste;
-    teste1.id = 1;
-    teste1.parametros = (void*)("Lucas");
-    teste2.funcao = funcTeste;
-    teste2.id = 2;
-    teste2.parametros = (void*)("Joao");
-    teste3.funcao = funcTeste;
-    teste3.id = 3;
-    teste3.parametros = (void*)("Matheus");
-    teste4.funcao = funcTeste;
-    teste4.id = 4;
-    teste4.parametros = (void*)("Guilherme");
-    tarefasProntas.push_back(teste1);
-    tarefasProntas.push_back(teste2);
-    tarefasProntas.push_back(teste3);
-    tarefasProntas.push_back(teste3);
-    tarefasProntas.push_back(teste4);
-    tarefasProntas.push_back(teste4);
-    tarefasProntas.push_back(teste4);
-    tarefasProntas.push_back(teste4);
-    tarefasProntas.push_back(teste4);
-    tarefasProntas.push_back(teste4);
+    int pvs = 10;
+    int tID, tID2;
+    void *r, *s;
+
     start(pvs);
-    sync(0, NULL);
+    tID = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
+    spawn(NULL, funcTeste, (void*)("Lucas"));
+    spawn(NULL, funcTeste, (void*)("Gustavo"));
+    spawn(NULL, funcTeste, (void*)("Gabriel"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    tID2 = spawn(NULL, funcTeste, (void*)("Herculanoxxxxxxxxxx"));
+    spawn(NULL, funcTeste, (void*)("Herculano"));
+    
+    cout << "ID 1 para sincronizar: " << tID << endl;
+    cout << "ID 2 para sincronizar: " << tID2 << endl;
+
+    fazCoisa();
+
+    sync(tID, &r);
     finish();
+    //sync(tID2, &s);
+    cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
+    //cout << "RESULTADO SYNC 1: " << *(int*)s << endl;
     return 0;
 }
