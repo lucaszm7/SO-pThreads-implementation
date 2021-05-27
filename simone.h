@@ -109,7 +109,7 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
     pthread_mutex_lock(&(m_tarefas_prontas));
     tarefasProntas.push_back(novaTarefa);
     pthread_mutex_unlock(&(m_tarefas_prontas));
-    return novaTarefa.id;
+    return countID;
 }
 
 int sync(int idTarefa, void** retornoTarefa){
@@ -135,8 +135,10 @@ int sync(int idTarefa, void** retornoTarefa){
             break;
         }
     }
-    pthread_mutex_unlock(&m_tarefas_prontas);
-
+    if(!achou){
+        cout << "LIBEROU MUTEX TAREFAS PRONTAS" << endl;
+        pthread_mutex_unlock(&m_tarefas_prontas);
+    }
     //Ocasião numero 2
     //A tarefa não está na lista de tarefas prontas
     //Então iremos procurar na lista de tarefas terminadas
@@ -149,15 +151,18 @@ int sync(int idTarefa, void** retornoTarefa){
                 achou = true;
                 cout << "TAREFA JA FOI EXECUTADA" << endl;
                 tarefasTerminadas.erase(it2);
-                pthread_mutex_unlock(&m_tarefas_terminadas);
+
+                cout << "RETORNO UNLOCK: " << pthread_mutex_unlock(&m_tarefas_terminadas) << endl;
 
                 *retornoTarefa = it2->retorno;
                 cout << "RESULTADO PRE SYNC: " << *(int*)(*retornoTarefa) << endl;
                 break;
             }
         }
-        pthread_mutex_unlock(&m_tarefas_terminadas);
-
+        if(!achou){
+            cout << "LIBEROU MUTEX TAREFAS TERMINADAS" << endl;
+            pthread_mutex_unlock(&m_tarefas_terminadas);
+        }
         //Ocasiao numero 3
         //A tarefa está em execução
         //Esperar que ela termine
@@ -182,9 +187,8 @@ int sync(int idTarefa, void** retornoTarefa){
     //Printa o resultado
     //=== PARA DEBUG ===
     pthread_mutex_lock(&m_tarefas_terminadas);
-    while (tarefasTerminadas.size() > 0){
-        cout << "Retorno: " << *((int*)(tarefasTerminadas.front().retorno)) << endl;
-        tarefasTerminadas.pop_front();
+    for (it2 = tarefasTerminadas.begin(); it2 != tarefasTerminadas.end(); ++it2){
+        cout << "Retorno: " << *((int*)(it2->retorno)) << endl;
     }
     pthread_mutex_unlock(&m_tarefas_terminadas);
     return 1;

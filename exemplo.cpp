@@ -15,8 +15,8 @@ void fazCoisa(){
 
 int main(){
     int pvs = 10;
-    int tID, tID2;
-    void *r, *s;
+    int tID, tID2, tID3;
+    void *r, *s, *t;
 
     start(pvs);
     tID = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
@@ -33,13 +33,20 @@ int main(){
     
     cout << "ID 1 para sincronizar: " << tID << endl;
     cout << "ID 2 para sincronizar: " << tID2 << endl;
+    //cout << "ID 3 para sincronizar: " << tID3 << endl;
+    cout << "\n";
 
-    fazCoisa();
+    //fazCoisa();
 
     sync(tID, &r);
-    finish();
-    //sync(tID2, &s);
     cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
-    //cout << "RESULTADO SYNC 1: " << *(int*)s << endl;
+    cout << "\n";
+    // sync(tID2, &s);
+    // cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
+    // cout << "\n";
+    // sync(tID3, &t);
+    // cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
+    // cout << "\n";
+    finish();
     return 0;
 }
