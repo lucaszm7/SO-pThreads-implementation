@@ -71,20 +71,20 @@ int main2(){
 
 
     sync(tID2, &s);
-    //cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
-    // cout << "\n";
+    cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
+    cout << "\n";
 
-    // tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
-    // sync(tID3, &t);
-    // cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
-    // cout << "\n";
+    tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
+    sync(tID3, &t);
+    cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
+    cout << "\n";
 
     cout << "ID 2 para sincronizar: " << tID2 << endl;
-    //cout << "ID 3 para sincronizar: " << tID3 << endl;
-    //cout << "\n";
+    cout << "ID 3 para sincronizar: " << tID3 << endl;
+    cout << "\n";
 
     finish();
-    //cout << "ID 1 para sincronizar: " << tID << endl;
+    cout << "ID 1 para sincronizar: " << tID << endl;
     return 0;
 }
 //*/
