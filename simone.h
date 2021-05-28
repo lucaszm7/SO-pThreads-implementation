@@ -190,7 +190,7 @@ int sync(int idTarefa, void** retornoTarefa){
             pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=True: m_tarefas_prontas;
 
             //Executa a função
-            tarefaSync->retorno = tarefaSync->funcao(tarefaSync->parametros);   // Coloca o resultado na lista de tarefas terminadas
+            tarefaSync->retorno = tarefaSync->funcao(tarefaSync->parametros);   // Coloca o resultado na lista de tarefas terminadas.
 
             pthread_mutex_lock(&m_tarefas_terminadas);  // lock: m_tarefas_terminadas;
             tarefasTerminadas.push_back(*tarefaSync);
