@@ -13,7 +13,7 @@ void* funcTeste(void* pTeste){
     *r = 0;
     //cout << "ERRO 2" << endl;
     if(pTeste == NULL){
-        dta = strdup("JOSEARLINDODACRUZEVARISTO");
+        dta = ("JOSEARLINDODACRUZEVARISTO");
         //cout << "ERRO 3" << endl;
     }
 

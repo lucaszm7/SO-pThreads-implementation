@@ -35,9 +35,9 @@ void* fibo(void *dta){
 }
 
 int main1(){
-    int pvs = 20;
+    int pvs = 0;
     int tID;
-    int par = 30;
+    int par = 31;
     void *r;
     start(pvs);
     tID = spawn(NULL, fibo, &par);
@@ -46,7 +46,7 @@ int main1(){
     finish();
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
 }
-
+///*
 int main2(){
     int pvs = 15;
     int tID, tID2, tID3;
@@ -87,11 +87,11 @@ int main2(){
     //cout << "ID 1 para sincronizar: " << tID << endl;
     return 0;
 }
-
+//*/
 int main3(){
 
 }
 
 int main(){
-    main1();
+    main2();
 }
