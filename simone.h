@@ -140,7 +140,7 @@ int sync(int idTarefa, void** retornoTarefa){
         // Checa caso 1: Tarefa está na lista de tarefas_prontas
         // ------------------------------------------------------------------------------------------------------
 
-        for(iterator_t = tarefasProntas.begin(); iterator_t != tarefasProntas.end(); iterator_t){
+        for(iterator_t = tarefasProntas.begin(); iterator_t != tarefasProntas.end(); ++iterator_t){
 
             if(idTarefa == iterator_t->id){    // caso 1: Tarefa está na tarefasProntas
 
@@ -159,7 +159,7 @@ int sync(int idTarefa, void** retornoTarefa){
         // Checa caso 2: Tarefa está na lista de tarefas_terminadas
         // ------------------------------------------------------------------------------------------------------
 
-        for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); iterator_t){
+        for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
 
             if(idTarefa == iterator_t->id){    // caso 2: Tarefa está na tarefasTerminadas
 

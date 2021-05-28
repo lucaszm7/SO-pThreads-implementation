@@ -95,10 +95,8 @@ int main2(){
     return 0;
 }
 //*/
-int main3(){
-
-}
 
 int main(){
     main1();
+    return 0;
 }
