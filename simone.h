@@ -112,11 +112,12 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
     pthread_mutex_lock(&m_countID); // lock: m_countID
     countID += 1;
     int returnID = countID;
+    pthread_mutex_unlock(&m_countID);   // unlock: m_countID
     Tarefa novaTarefa;
     novaTarefa.funcao = func;
     novaTarefa.parametros = dta;
-    novaTarefa.id = countID;
-    pthread_mutex_unlock(&m_countID);   // unlock: m_countID
+    novaTarefa.id = returnID;
+   
 
     pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
     tarefasProntas.push_back(novaTarefa);
@@ -134,7 +135,7 @@ int sync(int idTarefa, void** retornoTarefa){
     while(true){
 
         pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
-        pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
+        //pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
 
         // ------------------------------------------------------------------------------------------------------
         // Checa caso 1: Tarefa está na lista de tarefas_prontas
@@ -148,7 +149,7 @@ int sync(int idTarefa, void** retornoTarefa){
                 tarefasProntas.erase(iterator_t);
 
                 pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
-                pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
+                //pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
                 *retornoTarefa = tarefaSync->funcao(tarefaSync->parametros);
 
@@ -158,6 +159,8 @@ int sync(int idTarefa, void** retornoTarefa){
         // ------------------------------------------------------------------------------------------------------
         // Checa caso 2: Tarefa está na lista de tarefas_terminadas
         // ------------------------------------------------------------------------------------------------------
+        pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock: m_tarefas_prontas
+        pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
 
         for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
 
@@ -166,7 +169,7 @@ int sync(int idTarefa, void** retornoTarefa){
                 *tarefaSync = *iterator_t;
                 tarefasTerminadas.erase(iterator_t);
 
-                pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
+                //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
                 pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
                 *retornoTarefa = tarefaSync->retorno;
@@ -176,7 +179,7 @@ int sync(int idTarefa, void** retornoTarefa){
 
         //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=False: m_tarefas_prontas
         pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=False: m_tarefas_terminadas
-
+        pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
         // ------------------------------------------------------------------------------------------------------
         // caso 3: Tarefa não está na lista de tarefas_prontas e também não está na lista de tarefas_terminadas
         // ------------------------------------------------------------------------------------------------------
@@ -204,7 +207,7 @@ int sync(int idTarefa, void** retornoTarefa){
 }
 
 void finish(){
-    cout << "Finalizando threads... /n" << endl;
+    cout << "Finalizando threads..." << endl;
     isFinished = true;
     while (!threads.empty()){
         //cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
