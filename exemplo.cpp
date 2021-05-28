@@ -27,7 +27,7 @@ void* fibo(void *dta){
         *n2 = n - 2;
         t2 = spawn(NULL, fibo, (void*) n2);
 
-        cout << "Fibo sync irá começar ";
+        //cout << "Fibo sync irá começar ";
 
         sync(t1, &r1);
         sync(t2, &r2);
@@ -37,21 +37,22 @@ void* fibo(void *dta){
 }
 
 int main1(){
-    int pvs = 0;
+    int pvs = 12;
     int tID;
-    int par = 15;
+    int par = 35;
     void *r;
     start(pvs);
-    cout << "Pvs inicializados ";
+    //cout << "Pvs inicializados ";
     tID = spawn(NULL, fibo, &par);
-    cout << "Spawn fibo executado";
-    cout << "Sync irá ser executado";
+    //cout << "Spawn fibo executado";
+    //cout << "Sync irá ser executado";
     sync(tID, &r);
-    cout << "Sync executado";
-    cout << "Finish irá ser executado";
+    //cout << "Sync executado";
+    //cout << "Finish irá ser executado";
+    cout << "Fibo de " << par << " = " << *(int*)r << endl;
     finish();
     cout << "Finish executado";
-    cout << "Fibo de " << par << " = " << *(int*)r << endl;
+    //cout << "Fibo de " << par << " = " << *(int*)r << endl;
 }
 ///*
 int main2(){
