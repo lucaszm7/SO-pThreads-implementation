@@ -29,12 +29,15 @@ void* fibo(void *dta){
         *n2 = n - 2;
         t2 = spawn(NULL, fibo, (void*) n2);
 
-        //cout << "Fibo sync irá começar ";
-
         sync(t1, &r1);
         sync(t2, &r2);
         *r = *(int*)r1 + *(int*)r2;
+        delete(n1);
+        delete(n2);
+        delete(r1);
+        delete(r2);
     }
+
     return r;
 }
 

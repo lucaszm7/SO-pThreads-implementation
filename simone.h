@@ -132,13 +132,32 @@ int sync(int idTarefa, void** retornoTarefa){
     Tarefa *tarefaSync = new Tarefa;
     list<Tarefa>::iterator iterator_t;
 
-    pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
-    //pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
+    
+    // ------------------------------------------------------------------------------------------------------
+    // Checa caso 2 pela primeira vez: Tarefa está na lista de tarefas_prontas
+    // ------------------------------------------------------------------------------------------------------
+    pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
+    for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
+
+        if(idTarefa == iterator_t->id){    // caso 2: Tarefa está na tarefasTerminadas
+
+            *tarefaSync = *iterator_t;
+            tarefasTerminadas.erase(iterator_t);
+
+            //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
+            pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
+
+            *retornoTarefa = tarefaSync->retorno;
+            delete(tarefaSync);
+            return 1;
+        }
+    }
+    pthread_mutex_unlock(&(m_tarefas_terminadas));  // unlock: m_tarefas_terminadas
 
     // ------------------------------------------------------------------------------------------------------
     // Checa caso 1: Tarefa está na lista de tarefas_prontas
     // ------------------------------------------------------------------------------------------------------
-
+    pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
     for(iterator_t = tarefasProntas.begin(); iterator_t != tarefasProntas.end(); ++iterator_t){
 
         if(idTarefa == iterator_t->id){    // caso 1: Tarefa está na tarefasProntas
@@ -156,7 +175,33 @@ int sync(int idTarefa, void** retornoTarefa){
     }
     pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock: m_tarefas_prontas
 
+    // ------------------------------------------------------------------------------------------------------
+    // caso 3: Tarefa não está na lista de tarefas_prontas e também não está na lista de tarefas_terminadas
+    //          Então fica em loop executando alguma tarefa até a tarefa desejada ficar pronta
+    // ------------------------------------------------------------------------------------------------------
+
     while(!isFinished){
+
+        pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
+        if(!tarefasProntas.empty()){    // checa se há uma tarefa para finalizar enquanto espera pela tarefaSync terminar
+                
+            // tarefas_prontas já está com lock
+            *tarefaSync = (tarefasProntas.front());
+            tarefasProntas.pop_front();
+
+            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=True: m_tarefas_prontas;
+
+            //Executa a função
+            tarefaSync->retorno = tarefaSync->funcao(tarefaSync->parametros);   // Coloca o resultado na lista de tarefas terminadas.
+
+            pthread_mutex_lock(&m_tarefas_terminadas);  // lock: m_tarefas_terminadas;
+            tarefasTerminadas.push_back(*tarefaSync);
+            pthread_mutex_unlock(&m_tarefas_terminadas);    // unlock: m_tarefas_terminadas;
+        }
+        //Se a lista estiver vazia libera a mutex
+        else {
+            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=False: m_tarefas_prontas;
+        }
         // ------------------------------------------------------------------------------------------------------
         // Checa caso 2: Tarefa está na lista de tarefas_terminadas
         // ------------------------------------------------------------------------------------------------------
@@ -178,33 +223,8 @@ int sync(int idTarefa, void** retornoTarefa){
                 return 1;
             }
         }
-
-        //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=False: m_tarefas_prontas
-        pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=False: m_tarefas_terminadas
-        pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas
-        // ------------------------------------------------------------------------------------------------------
-        // caso 3: Tarefa não está na lista de tarefas_prontas e também não está na lista de tarefas_terminadas
-        // ------------------------------------------------------------------------------------------------------
-
-        if(!tarefasProntas.empty()){    // checa se há uma tarefa para finalizar enquanto espera pela tarefaSync terminar
-                
-            // tarefas_prontas já está com lock
-            *tarefaSync = (tarefasProntas.front());
-            tarefasProntas.pop_front();
-
-            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=True: m_tarefas_prontas;
-
-            //Executa a função
-            tarefaSync->retorno = tarefaSync->funcao(tarefaSync->parametros);   // Coloca o resultado na lista de tarefas terminadas.
-
-            pthread_mutex_lock(&m_tarefas_terminadas);  // lock: m_tarefas_terminadas;
-            tarefasTerminadas.push_back(*tarefaSync);
-            pthread_mutex_unlock(&m_tarefas_terminadas);    // unlock: m_tarefas_terminadas;
-        }
-        //Se a lista estiver vazia libera a mutex
-        else {
-            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=False: m_tarefas_prontas;
-        }
+        pthread_mutex_unlock(&(m_tarefas_terminadas));    // unlock: m_tarefas_terminadas
+        
     }
 }
 
