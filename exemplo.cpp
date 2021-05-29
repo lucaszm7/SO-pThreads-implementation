@@ -15,7 +15,7 @@ void* funcTeste(void* pTeste){
     *r = 0;
     //cout << "ERRO 2" << endl;
     if(pTeste == NULL){
-        dta = strdup("JOSEARLINDODACRUZEVARISTO");
+        dta = ("JOSEARLINDODACRUZEVARISTO");
         //cout << "ERRO 3" << endl;
     }
 
@@ -38,6 +38,7 @@ void* fazCoisa(void* n){
         x += 1;
     }
     cout << "TAREFA EXECUTADA N: " << *(int*)n << endl;
+    return 0;
 }
 
 void* fibo(void *dta){
@@ -84,8 +85,8 @@ int main1(){
 
     auto stopTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stopTime - startTime);
-    cout << "Tempo de execucao: " << duration.count()/1000000 << endl;
-
+    cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
+    return 0;
    
 }
 ///*
@@ -140,17 +141,16 @@ int main3(){
     for (int i = 0; i < m; ++i){
         par[i] = i;
         tiD[i] = spawn(NULL, fazCoisa, &par[i]);
-        //printf("TID %d: %d\n", i, tiD[i]);
     }
-    // for (int i = 0; i < m; ++i){
-    //     printf("TID %d: %d\n", i, tiD[i]);
-    // }
-    Sleep(5000);
+
+    for (int i = 0; i < m; ++i){
+        sync(tiD[i], NULL);
+    }
     finish();
     return 0;
 }
 
 int main(){
-    main3();
+    main1();
     return 0;
 }

@@ -47,7 +47,7 @@ void* loop_que_itera(void*p) {
         while(tarefasProntas.empty()){
             pthread_cond_wait(&c_tarefas_prontas, &m_tarefas_prontas);
             if(isFinished){
-            pthread_mutex_unlock(&m_tarefas_prontas);
+                pthread_mutex_unlock(&m_tarefas_prontas);
             return 0;
             }
         }
@@ -201,29 +201,14 @@ int sync(int idTarefa, void** retornoTarefa){
 }
 
 void finish(){
-    cout << "Finalizando threads... "<< threads.size() << endl;
     isFinished = true;
     int error;
-    int i=0;
+    pthread_cond_broadcast(&c_tarefas_prontas);
     while (!threads.empty()){
-
-        //cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
-        pthread_cond_broadcast(&c_tarefas_prontas);
-        //pthread_cond_signal(&c_tarefas_prontas);
-        //pthread_cond_signal(&c_tarefas_prontas);
-        //pthread_cond_signal(&c_tarefas_prontas);
-        cout << "i: " << i << endl;
-        error = pthread_join(threads.front(), NULL);
-        cout << "error: " << error << endl;
-        if(error != 0){
-            cout << "Error join thread: "<< error << endl;
+        if(pthread_join(threads.front(), NULL) != 0){
+            cout << "Error join thread: " << endl;
         }
-        else{
-            cout << "Sucess join thread: "<< error << endl;
-        }
-        //cout << "=== SEGMENTATION FAULT 3 ===" << endl;
         threads.pop_front();
-        ++i;
     }
     pthread_mutex_destroy(&m_tarefas_prontas);
     pthread_mutex_destroy(&m_tarefas_terminadas);
