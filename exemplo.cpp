@@ -2,6 +2,8 @@
 #include <list>
 #include <pthread.h>
 #include "simone.h"
+#include <chrono>
+using namespace std::chrono;
 
 using namespace std;
 
@@ -66,19 +68,27 @@ void* fibo(void *dta){
 }
 
 int main1(){
-    int pvs = 10;
+
+    auto startTime = high_resolution_clock::now();
+
+    int pvs = 7;
     int tID;
     int par = 30;
     void *r;
     start(pvs);
     tID = spawn(NULL, fibo, &par);
-    //fazCoisa();
     sync(tID, &r);
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
     finish();
-    return 0;
-}
+    cout << "Finish executado" << endl;
 
+    auto stopTime = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stopTime - startTime);
+    cout << "Tempo de execucao: " << duration.count()/1000000 << endl;
+
+   
+}
+///*
 int main2(){
     int pvs = 15;
     int tID, tID2, tID3;
@@ -103,25 +113,25 @@ int main2(){
 
 
     sync(tID2, &s);
-    //cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
-    // cout << "\n";
+    cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
+    cout << "\n";
 
-    // tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
-    // sync(tID3, &t);
-    // cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
-    // cout << "\n";
+    tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
+    sync(tID3, &t);
+    cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
+    cout << "\n";
 
     cout << "ID 2 para sincronizar: " << tID2 << endl;
-    //cout << "ID 3 para sincronizar: " << tID3 << endl;
-    //cout << "\n";
+    cout << "ID 3 para sincronizar: " << tID3 << endl;
+    cout << "\n";
 
     finish();
-    //cout << "ID 1 para sincronizar: " << tID << endl;
+    cout << "ID 1 para sincronizar: " << tID << endl;
     return 0;
 }
 
 int main3(){
-    int pvs = 10;
+    int pvs = 500;
     int m = 100;
     int tiD[m];
     int par[m];
@@ -130,7 +140,7 @@ int main3(){
     for (int i = 0; i < m; ++i){
         par[i] = i;
         tiD[i] = spawn(NULL, fazCoisa, &par[i]);
-        printf("TID %d: %d\n", i, tiD[i]);
+        //printf("TID %d: %d\n", i, tiD[i]);
     }
     // for (int i = 0; i < m; ++i){
     //     printf("TID %d: %d\n", i, tiD[i]);
@@ -141,6 +151,6 @@ int main3(){
 }
 
 int main(){
-    main1();
+    main3();
     return 0;
 }
