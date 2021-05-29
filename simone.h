@@ -2,6 +2,7 @@
 #include <list>
 #include <string>
 #include <pthread.h>
+#include <time.h>
 
 using namespace std;
 
@@ -46,7 +47,7 @@ public:
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_threads = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t m_countID = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t m_countID = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
 list <pthread_t> threads;
@@ -93,25 +94,24 @@ void* loop_que_itera(void*p) {
 }
 
 int start(int m){
-    pthread_mutex_lock(&(m_threads));
+    srand (time(NULL));
     for (int i = 0; i < m; ++i){
         pthread_t thread;
         threads.push_back(thread);
         pthread_create(&thread, NULL, loop_que_itera, NULL);
     }
-    pthread_mutex_unlock(&(m_threads));
     return 1;
 }
 
 int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
-    pthread_mutex_lock(&m_countID);
-    countID += 1;
-    int returnID = countID;
+    //pthread_mutex_lock(&m_countID);
+    //countID += 1;
+    int returnID = rand();
     Tarefa novaTarefa;
     novaTarefa.funcao = func;
     novaTarefa.parametros = dta;
-    novaTarefa.id = countID;
-    pthread_mutex_unlock(&m_countID);
+    novaTarefa.id = returnID;
+    //pthread_mutex_unlock(&m_countID);
 
     pthread_mutex_lock(&(m_tarefas_prontas));
     tarefasProntas.push_back(novaTarefa);

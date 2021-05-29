@@ -5,11 +5,13 @@
 
 using namespace std;
 
-void fazCoisa(){
-    for (int x = 0; x < 100000000; ++x){
-        int y = x * x;
+void* fazCoisa(void* n){
+    int y;
+    for (int x = 0; x < 200000000; ++x){
+        y = y * x;
         x += 1;
     }
+    cout << "TAREFA EXECUTADA N: " << *(int*)n << endl;
 }
 
 void* fibo(void *dta){
@@ -89,9 +91,24 @@ int main2(){
 }
 
 int main3(){
+    int pvs = 10;
+    int m = 100;
+    int tiD[m];
+    int par[m];
+    start(pvs);
 
+    for (int i = 0; i < m; ++i){
+        par[i] = i;
+        tiD[i] = spawn(NULL, fazCoisa, &par[i]);
+        printf("TID %d: %d\n", i, tiD[i]);
+    }
+    // for (int i = 0; i < m; ++i){
+    //     printf("TID %d: %d\n", i, tiD[i]);
+    // }
+    Sleep(5000);
+    finish();
 }
 
 int main(){
-    main1();
+    main3();
 }
