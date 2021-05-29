@@ -32,12 +32,17 @@ void* fibo(void *dta){
         sync(t1, &r1);
         sync(t2, &r2);
         *r = *(int*)r1 + *(int*)r2;
+        delete(n1);
+        delete(n2);
+        delete(r1);
+        delete(r2);
     }
+
     return r;
 }
 
 int main1(){
-    int pvs = 20;
+    int pvs = 2;
     int tID;
     int par = 30;
     void *r;
@@ -45,8 +50,8 @@ int main1(){
     tID = spawn(NULL, fibo, &par);
     //fazCoisa();
     sync(tID, &r);
-    finish();
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
+    finish();
 }
 
 int main2(){
@@ -110,5 +115,5 @@ int main3(){
 }
 
 int main(){
-    main3();
+    main1();
 }
