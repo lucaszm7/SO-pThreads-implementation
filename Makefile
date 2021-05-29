@@ -3,7 +3,7 @@ CXXFLAGS= -g -Wall -lpthread
 LFLAGS= -lpthread -export-dynamic
 
 
-all: $(OBJS)
+all: exemplo.o
 	$(CXX) -o exemplo exemplo.o $(LFLAGS)
 
 	
