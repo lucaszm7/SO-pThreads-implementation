@@ -20,9 +20,9 @@ public:
     int c; //Custo computacional
 };
 
+pthread_cond_t c_tarefas_prontas = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t m_threads = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
 list <pthread_t> threads;
@@ -44,28 +44,28 @@ void* loop_que_itera(void*p) {
     do {
         
         pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas; Garante a exclusividade ao verificar a lista de tarefas prontas
+        while(tarefasProntas.empty()){
+            pthread_cond_wait(&c_tarefas_prontas, &m_tarefas_prontas);
+            if(isFinished){
+            pthread_mutex_unlock(&m_tarefas_prontas);
+            return 0;
+            }
+        }
 
         //Verifica se a lista está vazia
-        if(!tarefasProntas.empty()){
-            //Caso a lista não esteja vazia pega uma tarefa e libera o mutex
-            *tarefaAtual = (tarefasProntas.front());
-            tarefasProntas.pop_front();
+        //Caso a lista não esteja vazia pega uma tarefa e libera o mutex
+        *tarefaAtual = (tarefasProntas.front());
+        tarefasProntas.pop_front();
 
-            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=True: m_tarefas_prontas;
+        pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=True: m_tarefas_prontas;
 
-            //Executa a função
-            tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
-            //Coloca o resultado na lista de tarefas terminadas
+        //Executa a função
+        tarefaAtual->retorno = tarefaAtual->funcao(tarefaAtual->parametros);
+        //Coloca o resultado na lista de tarefas terminadas
 
-            pthread_mutex_lock(&m_tarefas_terminadas);  // lock: m_tarefas_terminadas;
-            tarefasTerminadas.push_back(*tarefaAtual);
-            pthread_mutex_unlock(&m_tarefas_terminadas);    // unlock: m_tarefas_terminadas;
-
-        }
-        //Se a lista estiver vazia libera a mutex
-        else {
-            pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock caso if=False: m_tarefas_prontas;
-        }
+        pthread_mutex_lock(&m_tarefas_terminadas);  // lock: m_tarefas_terminadas;
+        tarefasTerminadas.push_back(*tarefaAtual);
+        pthread_mutex_unlock(&m_tarefas_terminadas);    // unlock: m_tarefas_terminadas;
     
     } while(!isFinished);
     delete(tarefaAtual);
@@ -76,7 +76,9 @@ int start(int m){
     for (int i = 0; i < m; ++i){
         pthread_t thread;
         threads.push_back(thread);
-        pthread_create(&thread, NULL, loop_que_itera, NULL);
+        if(pthread_create(&(threads.back()), NULL, loop_que_itera, NULL) != 0){
+            perror("Failed to create the thread");
+        }
     }
     return 1;
 }
@@ -91,18 +93,18 @@ int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
     novaTarefa.parametros = dta;
     novaTarefa.id = returnID;
     tarefasProntas.push_back(novaTarefa);
+    pthread_cond_signal(&c_tarefas_prontas);
     pthread_mutex_unlock(&(m_tarefas_prontas)); // unlock: m_tarefas_prontas
-
     return returnID;
 }
 
 int sync(int idTarefa, void** retornoTarefa){
     Tarefa *tarefaSync = new Tarefa;
     list<Tarefa>::iterator iterator_t;
-
+    bool achou = false;
     
     // ------------------------------------------------------------------------------------------------------
-    // Checa caso 2 pela primeira vez: Tarefa está na lista de tarefas_prontas
+    // Checa caso 2 pela primeira vez: Tarefa está na lista de tarefas_terminada
     // ------------------------------------------------------------------------------------------------------
     pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
     for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
@@ -174,35 +176,55 @@ int sync(int idTarefa, void** retornoTarefa){
         // Checa caso 2: Tarefa está na lista de tarefas_terminadas
         // ------------------------------------------------------------------------------------------------------
         
-        pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
+        if(!tarefasTerminadas.empty()){
+            pthread_mutex_lock(&(m_tarefas_terminadas));    // lock: m_tarefas_terminadas
 
-        for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
+            for(iterator_t = tarefasTerminadas.begin(); iterator_t != tarefasTerminadas.end(); ++iterator_t){
 
-            if(idTarefa == iterator_t->id){    // caso 2: Tarefa está na tarefasTerminadas
+                if(idTarefa == iterator_t->id){    // caso 2: Tarefa está na tarefasTerminadas
 
-                *tarefaSync = *iterator_t;
-                tarefasTerminadas.erase(iterator_t);
+                    *tarefaSync = *iterator_t;
+                    tarefasTerminadas.erase(iterator_t);
 
-                //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
-                pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
+                    //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
+                    pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
-                *retornoTarefa = tarefaSync->retorno;
-                delete(tarefaSync);
-                return 1;
+                    *retornoTarefa = tarefaSync->retorno;
+                    delete(tarefaSync);
+                    return 1;
+                }
             }
+            pthread_mutex_unlock(&(m_tarefas_terminadas));    // unlock: m_tarefas_terminadas
         }
-        pthread_mutex_unlock(&(m_tarefas_terminadas));    // unlock: m_tarefas_terminadas
-        
     }
+    return 0;
 }
 
 void finish(){
-    cout << "Finalizando threads..." << endl;
+    cout << "Finalizando threads... "<< threads.size() << endl;
     isFinished = true;
+    int error;
+    int i=0;
     while (!threads.empty()){
+
         //cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
-        pthread_join(threads.front(), NULL);
+        pthread_cond_broadcast(&c_tarefas_prontas);
+        //pthread_cond_signal(&c_tarefas_prontas);
+        //pthread_cond_signal(&c_tarefas_prontas);
+        //pthread_cond_signal(&c_tarefas_prontas);
+        cout << "i: " << i << endl;
+        error = pthread_join(threads.front(), NULL);
+        cout << "error: " << error << endl;
+        if(error != 0){
+            cout << "Error join thread: "<< error << endl;
+        }
+        else{
+            cout << "Sucess join thread: "<< error << endl;
+        }
         //cout << "=== SEGMENTATION FAULT 3 ===" << endl;
         threads.pop_front();
+        ++i;
     }
+    pthread_mutex_destroy(&m_tarefas_prontas);
+    pthread_mutex_destroy(&m_tarefas_terminadas);
 }
