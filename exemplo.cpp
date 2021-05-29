@@ -5,6 +5,30 @@
 
 using namespace std;
 
+void* funcTeste(void* pTeste){
+    //cout << "ERRO 1" << endl;
+    char* dta = (char*) pTeste;
+    //cout << "STRING REFERENCE: " << *dta <<  endl;
+    int *r = new int;
+    *r = 0;
+    //cout << "ERRO 2" << endl;
+    if(pTeste == NULL){
+        dta = strdup("JOSEARLINDODACRUZEVARISTO");
+        //cout << "ERRO 3" << endl;
+    }
+
+    for (*r = 0; dta[*r] != NULL; ++(*r));
+
+    return (void*) r;
+}
+
+void* funcTeste2(void* t){
+    cout << "Ola mundo" << endl;
+    int *r = new int;
+    *r = 0;
+    return (void*) r;
+}
+
 void* fazCoisa(void* n){
     int y;
     for (int x = 0; x < 200000000; ++x){
@@ -42,7 +66,7 @@ void* fibo(void *dta){
 }
 
 int main1(){
-    int pvs = 2;
+    int pvs = 10;
     int tID;
     int par = 30;
     void *r;
@@ -52,6 +76,7 @@ int main1(){
     sync(tID, &r);
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
     finish();
+    return 0;
 }
 
 int main2(){
@@ -112,8 +137,10 @@ int main3(){
     // }
     Sleep(5000);
     finish();
+    return 0;
 }
 
 int main(){
     main1();
+    return 0;
 }

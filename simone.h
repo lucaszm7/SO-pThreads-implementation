@@ -6,30 +6,6 @@
 
 using namespace std;
 
-void* funcTeste(void* pTeste){
-    //cout << "ERRO 1" << endl;
-    char* dta = (char*) pTeste;
-    //cout << "STRING REFERENCE: " << *dta <<  endl;
-    int *r = new int;
-    *r = 0;
-    //cout << "ERRO 2" << endl;
-    if(pTeste == NULL){
-        dta = strdup("JOSEARLINDODACRUZEVARISTO");
-        //cout << "ERRO 3" << endl;
-    }
-
-    for (*r = 0; dta[*r] != NULL; ++(*r));
-
-    return (void*) r;
-}
-
-void* funcTeste2(void* t){
-    cout << "Ola mundo" << endl;
-    int *r = new int;
-    *r = 0;
-    return (void*) r;
-}
-
 class Tarefa{
 public:
     int id = 0;
@@ -47,7 +23,6 @@ public:
 pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t m_threads = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_t m_countID = PTHREAD_MUTEX_INITIALIZER;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
 list <pthread_t> threads;
@@ -94,7 +69,6 @@ void* loop_que_itera(void*p) {
 }
 
 int start(int m){
-    srand (time(NULL));
     for (int i = 0; i < m; ++i){
         pthread_t thread;
         threads.push_back(thread);
@@ -104,21 +78,17 @@ int start(int m){
 }
 
 int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
-    //pthread_mutex_lock(&m_countID);
-    //countID += 1;
-    int returnID = rand();
+    
+    pthread_mutex_lock(&(m_tarefas_prontas));
+    countID += 1;
+    int returnID = countID;
     Tarefa novaTarefa;
     novaTarefa.funcao = func;
     novaTarefa.parametros = dta;
     novaTarefa.id = returnID;
-    //pthread_mutex_unlock(&m_countID);
-
-    pthread_mutex_lock(&(m_tarefas_prontas));
     tarefasProntas.push_back(novaTarefa);
     pthread_mutex_unlock(&(m_tarefas_prontas));
 
-    // cout << "RETURN ID: " << returnID << endl;
-    // cout << "\n";
     return returnID;
 }
 
@@ -252,12 +222,12 @@ int sync(int idTarefa, void** retornoTarefa){
 }
 
 void finish(){
-    //cout << "=== SEGMENTATION FAULT 1 ===" << endl;
+    cout << "=== SEGMENTATION FAULT 1 ===" << endl;
     isFinished = true;
     while (!threads.empty()){
-        //cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
+        cout << "=== SEGMENTATION FAULT 2 === " << threads.size() << endl;
         pthread_join(threads.front(), NULL);
-        //cout << "=== SEGMENTATION FAULT 3 ===" << endl;
+        cout << "=== SEGMENTATION FAULT 3 ===" << endl;
         threads.pop_front();
     }
 }
