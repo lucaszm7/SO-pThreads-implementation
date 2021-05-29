@@ -92,7 +92,7 @@ void* loop_que_itera(void*p) {
         }
     
     } while(!isFinished);
-
+    delete(tarefaAtual);
     return 0;
 }
 
@@ -150,12 +150,12 @@ int sync(int idTarefa, void** retornoTarefa){
             //pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
             *retornoTarefa = tarefaSync->funcao(tarefaSync->parametros);
-
+            delete(tarefaSync);
             return 1;
         }
     }
     pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock: m_tarefas_prontas
-    
+
     while(!isFinished){
         // ------------------------------------------------------------------------------------------------------
         // Checa caso 2: Tarefa está na lista de tarefas_terminadas
@@ -174,6 +174,7 @@ int sync(int idTarefa, void** retornoTarefa){
                 pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
                 *retornoTarefa = tarefaSync->retorno;
+                delete(tarefaSync);
                 return 1;
             }
         }

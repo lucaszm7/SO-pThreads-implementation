@@ -2,6 +2,8 @@
 #include <list>
 #include <pthread.h>
 #include "simone.h"
+#include <chrono>
+using namespace std::chrono;
 
 using namespace std;
 
@@ -37,6 +39,9 @@ void* fibo(void *dta){
 }
 
 int main1(){
+
+    auto startTime = high_resolution_clock::now();
+
     int pvs = 12;
     int tID;
     int par = 35;
@@ -51,8 +56,13 @@ int main1(){
     //cout << "Finish irá ser executado";
     cout << "Fibo de " << par << " = " << *(int*)r << endl;
     finish();
-    cout << "Finish executado";
-    //cout << "Fibo de " << par << " = " << *(int*)r << endl;
+    cout << "Finish executado" << endl;
+
+    auto stopTime = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stopTime - startTime);
+    cout << "Tempo de execução: " << duration.count() << endl;
+
+   
 }
 ///*
 int main2(){
