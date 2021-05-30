@@ -48,7 +48,7 @@ void* loop_que_itera(void*p) {
             pthread_cond_wait(&c_tarefas_prontas, &m_tarefas_prontas);
             if(isFinished){
                 pthread_mutex_unlock(&m_tarefas_prontas);
-            return 0;
+                return 0;
             }
         }
 
@@ -87,7 +87,16 @@ int start(int m){
 }
 
 int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL){
-    
+    try {
+        if(func == NULL){
+            throw 404;
+        }
+    }
+    catch (int error){
+        if(error == 404){
+            cout << "Error no function passed" << endl;
+        }
+    }
     pthread_mutex_lock(&(m_tarefas_prontas));
     countID += 1;
     int returnID = countID;
@@ -119,8 +128,9 @@ int sync(int idTarefa, void** retornoTarefa){
 
             //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
             pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
-
-            *retornoTarefa = tarefaSync->retorno;
+            if(retornoTarefa != NULL){
+                *retornoTarefa = tarefaSync->retorno;
+            }
             delete(tarefaSync);
             return 1;
         }
@@ -141,7 +151,12 @@ int sync(int idTarefa, void** retornoTarefa){
             pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
             //pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
-            *retornoTarefa = tarefaSync->funcao(tarefaSync->parametros);
+            if(retornoTarefa != NULL){
+                *retornoTarefa = tarefaSync->funcao(tarefaSync->parametros);
+            }
+            else if(retornoTarefa == NULL){
+                tarefaSync->funcao(tarefaSync->parametros);
+            }
             delete(tarefaSync);
             return 1;
         }
@@ -192,7 +207,9 @@ int sync(int idTarefa, void** retornoTarefa){
                     //pthread_mutex_unlock(&(m_tarefas_prontas));   // unlock caso if=True: m_tarefas_prontas
                     pthread_mutex_unlock(&(m_tarefas_terminadas)); // unlock caso if=True: m_tarefas_terminadas
 
-                    *retornoTarefa = tarefaSync->retorno;
+                    if(retornoTarefa != NULL){
+                        *retornoTarefa = tarefaSync->retorno;
+                    }
                     delete(tarefaSync);
                     return 1;
                 }
