@@ -20,9 +20,9 @@ public:
     int c; //Custo computacional
 };
 
-pthread_cond_t c_tarefas_prontas = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t m_tarefas_prontas = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t m_tarefas_terminadas = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t c_tarefas_prontas;
+pthread_mutex_t m_tarefas_prontas;
+pthread_mutex_t m_tarefas_terminadas;
 list <Tarefa> tarefasProntas;
 list <Tarefa> tarefasTerminadas;
 list <pthread_t> threads;
@@ -73,6 +73,9 @@ void* loop_que_itera(void*p) {
 }
 
 int start(int m){
+    pthread_mutex_init(&m_tarefas_prontas, NULL);
+    pthread_mutex_init(&m_tarefas_terminadas, NULL);
+    pthread_cond_init(&c_tarefas_prontas, NULL);
     for (int i = 0; i < m; ++i){
         pthread_t thread;
         threads.push_back(thread);
@@ -210,6 +213,9 @@ void finish(){
         }
         threads.pop_front();
     }
+    isFinished = false;
+    countID = 0;
+    pthread_cond_destroy(&c_tarefas_prontas);
     pthread_mutex_destroy(&m_tarefas_prontas);
     pthread_mutex_destroy(&m_tarefas_terminadas);
 }

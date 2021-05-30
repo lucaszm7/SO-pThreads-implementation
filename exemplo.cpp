@@ -1,8 +1,9 @@
 #include <iostream>
 #include <list>
 #include <pthread.h>
-#include "simone.h"
 #include <chrono>
+#include <fstream>
+#include "simone.h"
 using namespace std::chrono;
 
 using namespace std;
@@ -35,12 +36,12 @@ void* fazCoisa(void* n){
     int *r = new int;
     int *y = new int;
     *r = 1;
-    for (int x = 0; x < 200000000; ++x){
+    for (int x = 0; x < 20000000; ++x){
         *y = *y * x;
         *y = *y - (2 * x);
     }
     *r = *y;
-    cout << "Tarefa " << *(int*)n << " executada" << endl;
+    //cout << "Tarefa " << *(int*)n << " executada" << endl;
     return r;
 }
 
@@ -64,8 +65,8 @@ void* fibo(void *dta){
         *r = *(int*)r1 + *(int*)r2;
         delete(n1);
         delete(n2);
-        delete(r1);
-        delete(r2);
+        delete((int*)r1);
+        delete((int*)r2);
     }
 
     return r;
@@ -134,13 +135,13 @@ int main2(){
     return 0;
 }
 
-int main3(){
+float main3(int npvs, int nm){
     auto startTime = high_resolution_clock::now();
-    int pvs = 2;
-    int m = 100;
+    int pvs = npvs;
+    int m = nm;
     int tiD[m];
     int par[m];
-    void *r[m];
+    void* r[m];
     start(pvs);
 
     for (int i = 0; i < m; ++i){
@@ -151,17 +152,40 @@ int main3(){
     for (int i = 0; i < m; ++i){
         sync(tiD[i], &r[i]);
     }
-    for(int i = 0; i < m; ++i){
-        cout << "Retorno da tarefa " << i << ": " << *(int*)r[i] << endl;
+    // for(int i = 0; i < m; ++i){
+    //     cout << "Retorno da tarefa " << i << ": " << *(int*)r[i] << endl;
+    // }
+    for (int i = 0; i < m; ++i){
+        delete((int*)r[i]);
     }
     finish();
     auto stopTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stopTime - startTime);
-    cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
-    return 0;
+    // cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
+    
+    return (float)(duration.count());
 }
 
 int main(){
-    main3();
+    int pvs = 1;
+    int m = 1;
+    float time[pvs][m];
+    ofstream results;
+
+    for (pvs = 1; pvs <= 3; ++pvs){
+        for (m = 1; m <= 20; ++m){
+            time[pvs][m] = main3(pvs, m)/1000000;
+            cout << "Time for " << pvs << " pvs and " << m << " tasks equal: " <<time[pvs][m]<<endl;
+        }
+    }
+
+    // results.open("results.txt", ios::app);
+
+    // results << pvs << "       " << m << "         ";
+    // //time = main3(pvs, m)/1000000;
+    // //results << time <<  "\n";
+
+    // results.close();
+
     return 0;
 }
