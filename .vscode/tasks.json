@@ -4,12 +4,12 @@
       {
         "type": "shell",
         "label": "C/C++: g++.exe build active file",
-        "command": "C:\cygwin64\bin\g++.exe",
+        "command": "C:\\cygwin64\\bin\\g++.exe",
         "args": [
           "-g",
           "${file}",
           "-o",
-          "${fileDirname}\${fileBasenameNoExtension}.exe"
+          "${fileDirname}\\${fileBasenameNoExtension}.exe"
         ],
         "options": {
           "cwd": "${workspaceFolder}"
@@ -18,11 +18,11 @@
       {
         "type": "shell",
         "label": "g++ build & run active file",
-        "command": "C:\cygwin64\bin\g++.exe",
+        "command": "C:\\cygwin64\\bin\\g++.exe",
         "args": [
           "${file}",
           "-o",
-          "${fileDirname}\${fileBasenameNoExtension}.exe"
+          "${fileDirname}\\${fileBasenameNoExtension}.exe"
         ],
         "options": {
           "cwd": "${workspaceFolder}"
