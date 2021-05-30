@@ -1,3 +1,9 @@
 *.exe
 *.json
 .vscode
+*.json
+.vscode/launch.json
+.vscode/tasks.json
+exemplo.exe.stackdump
+.vscode/launch.json
+.vscode/tasks.json
