@@ -32,13 +32,16 @@ void* funcTeste2(void* t){
 }
 
 void* fazCoisa(void* n){
-    int y;
+    int *r = new int;
+    int *y = new int;
+    *r = 1;
     for (int x = 0; x < 200000000; ++x){
-        y = y * x;
-        x += 1;
+        *y = *y * x;
+        *y = *y - (2 * x);
     }
-    cout << "TAREFA EXECUTADA N: " << *(int*)n << endl;
-    return 0;
+    *r = *y;
+    cout << "Tarefa " << *(int*)n << " executada" << endl;
+    return r;
 }
 
 void* fibo(void *dta){
@@ -132,10 +135,12 @@ int main2(){
 }
 
 int main3(){
-    int pvs = 500;
+    auto startTime = high_resolution_clock::now();
+    int pvs = 2;
     int m = 100;
     int tiD[m];
     int par[m];
+    void *r[m];
     start(pvs);
 
     for (int i = 0; i < m; ++i){
@@ -144,13 +149,19 @@ int main3(){
     }
 
     for (int i = 0; i < m; ++i){
-        sync(tiD[i], NULL);
+        sync(tiD[i], &r[i]);
+    }
+    for(int i = 0; i < m; ++i){
+        cout << "Retorno da tarefa " << i << ": " << *(int*)r[i] << endl;
     }
     finish();
+    auto stopTime = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stopTime - startTime);
+    cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
     return 0;
 }
 
 int main(){
-    main1();
+    main3();
     return 0;
 }
