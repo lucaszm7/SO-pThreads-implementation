@@ -4,13 +4,17 @@ Zanusso Morais
 
 https://www.youtube.com/watch?v=Pt-n_7VG-yI&ab_channel=AnaTraversi
 
+# Compilação e execução Linux
+$ make all
+$ make run
+
+# Compilação e execução Windows(cgwin or WSL)
+$ g++ exemplo.cpp -o exemplo -lpthread
+$ ./exemplo
+
 # Biblioteca:
 A biblioteca simone.h foi designada para programação multithreading em C e C++.
 Ela oferece quatro primitivas básicas: start(), spawn(), sync() e finish().
-
-# Compilação e execução
-$ make all
-$ make run
 
 # int start(int m);
 O start() receberá
