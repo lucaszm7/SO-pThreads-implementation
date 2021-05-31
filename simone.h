@@ -42,7 +42,6 @@ bool isFinished = false;
 void* loop_que_itera(void*p) {
     Tarefa *tarefaAtual = new Tarefa;
     do {
-        
         pthread_mutex_lock(&(m_tarefas_prontas));   // lock: m_tarefas_prontas; Garante a exclusividade ao verificar a lista de tarefas prontas
         while(tarefasProntas.empty()){
             pthread_cond_wait(&c_tarefas_prontas, &m_tarefas_prontas);
@@ -81,6 +80,7 @@ int start(int m){
         threads.push_back(thread);
         if(pthread_create(&(threads.back()), NULL, loop_que_itera, NULL) != 0){
             perror("Failed to create the thread");
+            return 0;
         }
     }
     return 1;
@@ -222,7 +222,6 @@ int sync(int idTarefa, void** retornoTarefa){
 
 void finish(){
     isFinished = true;
-    int error;
     pthread_cond_broadcast(&c_tarefas_prontas);
     while (!threads.empty()){
         if(pthread_join(threads.front(), NULL) != 0){

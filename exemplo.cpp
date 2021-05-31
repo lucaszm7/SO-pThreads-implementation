@@ -8,22 +8,20 @@ using namespace std::chrono;
 
 using namespace std;
 
-void* funcTeste(void* pTeste){
-    //cout << "ERRO 1" << endl;
-    char* dta = (char*) pTeste;
-    //cout << "STRING REFERENCE: " << *dta <<  endl;
-    int *r = new int;
-    *r = 0;
-    //cout << "ERRO 2" << endl;
-    if(pTeste == NULL){
-        dta = ("JOSEARLINDODACRUZEVARISTO");
-        //cout << "ERRO 3" << endl;
-    }
-
-    for (*r = 0; dta[*r] != NULL; ++(*r));
-
-    return (void*) r;
-}
+// void* funcTeste(void* pTeste){
+//     //cout << "ERRO 1" << endl;
+//     char* dta = (char*) pTeste;
+//     //cout << "STRING REFERENCE: " << *dta <<  endl;
+//     int *r = new int;
+//     *r = 0;
+//     //cout << "ERRO 2" << endl;
+//     if(pTeste == NULL){
+//         dta = strdup("JOSEARLINDODACRUZEVARISTO");
+//         //cout << "ERRO 3" << endl;
+//     }
+//     for (*r = 0; dta[*r] != NULL; ++(*r));
+//     return (void*) r;
+// }
 
 void* funcTeste2(void* t){
     cout << "Ola mundo" << endl;
@@ -72,68 +70,61 @@ void* fibo(void *dta){
     return r;
 }
 
-int main1(){
+int main1(int pvs, int par){
 
     auto startTime = high_resolution_clock::now();
 
-    int pvs = 7;
+    //int pvs = 0;
     int tID;
-    int par = 30;
+    //int par = 40;
     void *r;
     start(pvs);
     tID = spawn(NULL, fibo, &par);
     sync(tID, &r);
-    cout << "Fibo de " << par << " = " << *(int*)r << endl;
+    cout << "Fibo de " << par << " = " << *(int*)r << " PV's = "<< pvs << endl;
     finish();
-    cout << "Finish executado" << endl;
+    //cout << "Finish executado" << endl;
 
     auto stopTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stopTime - startTime);
     cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
+    cout << endl;
     return 0;
-   
+
 }
 ///*
-int main2(){
-    int pvs = 15;
-    int tID, tID2, tID3;
-    void *r, *s, *t;
-
-    start(pvs);
-    spawn(NULL, funcTeste, (void*)("Gabriel"));
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    tID = spawn(NULL, funcTeste, (void*)("Herculanoxxxxxxxxxx"));
-    sync(tID, &r);
-    cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
-    cout << "\n";
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    tID2 = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    spawn(NULL, funcTeste, (void*)("Herculano"));
-    
-
-    //fazCoisa();
-
-
-    sync(tID2, &s);
-    cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
-    cout << "\n";
-
-    tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
-    sync(tID3, &t);
-    cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
-    cout << "\n";
-
-    cout << "ID 2 para sincronizar: " << tID2 << endl;
-    cout << "ID 3 para sincronizar: " << tID3 << endl;
-    cout << "\n";
-
-    finish();
-    cout << "ID 1 para sincronizar: " << tID << endl;
-    return 0;
-}
+// int main2(){
+//     int pvs = 15;
+//     int tID, tID2, tID3;
+//     void *r, *s, *t;
+//     start(pvs);
+//     spawn(NULL, funcTeste, (void*)("Gabriel"));
+//     spawn(NULL, funcTeste, (void*)("Herculano"));
+//     tID = spawn(NULL, funcTeste, (void*)("Herculanoxxxxxxxxxx"));
+//     sync(tID, &r);
+//     cout << "RESULTADO SYNC 1: " << *(int*)r << endl;
+//     cout << "\n";
+//     spawn(NULL, funcTeste, (void*)("Herculano"));
+//     spawn(NULL, funcTeste, (void*)("Herculano"));
+//     tID2 = spawn(NULL, funcTeste, (void*)("AnaAmeliax"));
+//     spawn(NULL, funcTeste, (void*)("Herculano"));
+//     spawn(NULL, funcTeste, (void*)("Herculano"));
+//     spawn(NULL, funcTeste, (void*)("Herculano")); 
+//     //fazCoisa();
+//     sync(tID2, &s);
+//     cout << "RESULTADO SYNC 2: " << *(int*)s << endl;
+//     cout << "\n";
+//     tID3 = spawn(NULL, funcTeste, (void*)("Gustavo"));
+//     sync(tID3, &t);
+//     cout << "RESULTADO SYNC 3: " << *(int*)t << endl;
+//     cout << "\n";
+//     cout << "ID 2 para sincronizar: " << tID2 << endl;
+//     cout << "ID 3 para sincronizar: " << tID3 << endl;
+//     cout << "\n";
+//     finish();
+//     cout << "ID 1 para sincronizar: " << tID << endl;
+//     return 0;
+// }
 
 float main3(int npvs, int nm){
     auto startTime = high_resolution_clock::now();
@@ -153,7 +144,7 @@ float main3(int npvs, int nm){
         sync(tiD[i], &r[i]);
     }
     // for(int i = 0; i < m; ++i){
-    //     cout << "Retorno da tarefa " << i << ": " << *(int*)r[i] << endl;
+    //     cout << "Retorno da tarefa " << i << ": " << (int)r[i] << endl;
     // }
     for (int i = 0; i < m; ++i){
         delete((int*)r[i]);
@@ -162,7 +153,7 @@ float main3(int npvs, int nm){
     auto stopTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stopTime - startTime);
     // cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
-    
+
     return (float)(duration.count());
 }
 
@@ -172,20 +163,31 @@ int main(){
     float time[pvs][m];
     ofstream results;
 
-    for (pvs = 1; pvs <= 3; ++pvs){
-        for (m = 1; m <= 20; ++m){
+    cout << "=== Generic Task ===" << endl;
+    for (pvs = 1; pvs <= 8; pvs += 2){
+        for (m = 1; m <= 20; m += 4){
             time[pvs][m] = main3(pvs, m)/1000000;
             cout << "Time for " << pvs << " pvs and " << m << " tasks equal: " <<time[pvs][m]<<endl;
         }
     }
-
-    // results.open("results.txt", ios::app);
-
-    // results << pvs << "       " << m << "         ";
-    // //time = main3(pvs, m)/1000000;
-    // //results << time <<  "\n";
-
-    // results.close();
+    cout << endl;
+    cout << "=== Fibonacci ===" << endl;
+    main1(0, 10);
+    main1(0, 20);
+    main1(0, 30);
+    cout << endl;
+    main1(3, 10);
+    main1(3, 20);
+    main1(3, 30);
+    cout << endl;
+    main1(5, 10);
+    main1(5, 20);
+    main1(5, 30);
+    cout << endl;
+    main1(7, 10);
+    main1(7, 20);
+    main1(7, 30);
+    cout << endl;
 
     return 0;
 }
