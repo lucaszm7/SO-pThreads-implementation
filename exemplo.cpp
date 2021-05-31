@@ -160,7 +160,7 @@ float main3(int npvs, int nm){
 int main(){
     int pvs = 1;
     int m = 1;
-    float time[pvs][m];
+    float time[8][20];
     ofstream results;
 
     cout << "=== Generic Task ===" << endl;
