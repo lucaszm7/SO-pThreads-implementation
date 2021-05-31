@@ -81,13 +81,14 @@ int main1(int pvs, int par){
     start(pvs);
     tID = spawn(NULL, fibo, &par);
     sync(tID, &r);
-    cout << "Fibo de " << par << " = " << *(int*)r << " PV's = "<< pvs << endl;
+    cout << "Fibo de " << par << " = " << *(int*)r << endl;
+    cout << "PV's       = "<< pvs << endl;
     finish();
     //cout << "Finish executado" << endl;
 
     auto stopTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stopTime - startTime);
-    cout << "Tempo de execucao: " << (float)duration.count()/1000000 << endl;
+    cout << "Time       = " << (float)duration.count()/1000000 << endl;
     cout << endl;
     return 0;
 
@@ -126,10 +127,8 @@ int main1(int pvs, int par){
 //     return 0;
 // }
 
-float main3(int npvs, int nm){
+float main3(int pvs, int m){
     auto startTime = high_resolution_clock::now();
-    int pvs = npvs;
-    int m = nm;
     int tiD[m];
     int par[m];
     void* r[m];
@@ -160,6 +159,7 @@ float main3(int npvs, int nm){
 int main(){
     int pvs = 1;
     int m = 1;
+    int nfibo = 1;
     float time[8][20];
     ofstream results;
 
@@ -172,21 +172,9 @@ int main(){
     }
     cout << endl;
     cout << "=== Fibonacci ===" << endl;
-    main1(0, 10);
-    main1(0, 20);
-    main1(0, 30);
-    cout << endl;
-    main1(3, 10);
-    main1(3, 20);
-    main1(3, 30);
-    cout << endl;
-    main1(5, 10);
-    main1(5, 20);
-    main1(5, 30);
-    cout << endl;
-    main1(7, 10);
-    main1(7, 20);
-    main1(7, 30);
+    for (pvs = 0; pvs < 10; pvs += 2){
+        main1(pvs, 30);
+    }
     cout << endl;
 
     return 0;
