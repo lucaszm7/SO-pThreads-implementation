@@ -2,6 +2,8 @@
 Grupo: Ana Amélia Traversi, Gustavo da Silva Machado, Gabriel Almeida Gomes, Lucas
 Zanusso Morais
 
+https://www.youtube.com/watch?v=Pt-n_7VG-yI&ab_channel=AnaTraversi
+
 # Biblioteca:
 A biblioteca simone.h foi designada para programação multithreading em C e C++.
 Ela oferece quatro primitivas básicas: start(), spawn(), sync() e finish().
