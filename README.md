@@ -1,12 +1,12 @@
-#Trabalho Prático - Implementação com Pthreads
+# Trabalho Prático - Implementação com Pthreads
 Grupo: Ana Amélia Traversi, Gustavo da Silva Machado, Gabriel Almeida Gomes, Lucas
 Zanusso Morais
 
-#Biblioteca:
+# Biblioteca:
 A biblioteca simone.h foi designada para programação multithreading em C e C++.
 Ela oferece quatro primitivas básicas: start(), spawn(), sync() e finish().
 
-#int start(int m);
+# int start(int m);
 O start() receberá
 Ela recebe como parâmetro um valor inteiro que indica o número de threads a serem
 inicializados.
@@ -14,7 +14,7 @@ Criar o thread, inicializa as variáveis globais e chama o loop que itera.
 Ela retornará 1, no caso de sucesso da inicialização, e 0, no caso de falha.
 Intrínsico á execução do start(), possuímos a função loop_que_itera();
 
-#void* loop_que_itera(void*p);
+# void* loop_que_itera(void*p);
 Essa função usa o do-while para executar pelo menos uma tarefa.
 Ele pega as tarefas da lista de acordo com o escalonamento de fila, first-in first-out, que
 seleciona a tarefa mais antiga. Depois, ele adquire o mutex para a lista de Tarefas Prontas e
@@ -32,7 +32,7 @@ retorna zero. Ai que está o paralelismo, porque as tarefas podem ser feitas ao 
 tempo.
 O loop então coloca a tarefa na lista de tarefas terminadas.
 
-#int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL);
+# int spawn(Attrib *attr = NULL, void* (*func) (void*) = NULL, void* dta = NULL);
 O spawn() irá adicionar novas tarefas na fila.
 Ela receberá um ponteiro para a classe atributo, um ponteiro para uma função e um
 ponteiro para os parâmetros necessários.
@@ -44,7 +44,7 @@ ID é um inteiro utilizado pelo sync().O spawn() gerará um sinal para acordar u
 loop_que_itera para retirar uma tarefa da lista, executá-la e inserí-la na lista de Tarefas
 Terminadas.
 
-#int sync(int idTarefa, void** retornoTarefa);
+# int sync(int idTarefa, void** retornoTarefa);
 O sync() receberá um ID para a tarefa a ser sincronizada e a a posição de memória que
 está apontando para o retorno da tarefa.
 No sync(), consideram-se três casos: a tarefa adquirida está “terminada”, ela está “pronta”
@@ -57,7 +57,7 @@ Caso a tarefa esteja em execução, o sync() executará outra tarefa e depois vo
 verificar a anterior - até encontrar o ID na lista de Tarefas Terminadas e executar o primeiro
 caso.
 
-#void finish();
+# void finish();
 O finish() irá anunciar que terminou a execução, liberando todos os threads da lista Tarefas
 Prontas até a lista esvaziar. Ele também irá resetar as variáveis globais e destruir os mutex
 e condições do processo.
@@ -75,6 +75,6 @@ chamá-lo por meio de um ID retornado pela primitiva spawn.
 O comportamento do código é imprevisível quando:
 - É dado um finish() sem um start()
 - O finish() é utilizado em sequência um do outro.
--
-#Extras:
+
+# Extras:
 Não implementamos nenhum outro algoritmo ou função de escalonamento.
